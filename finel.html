@@ -1,0 +1,502 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+   <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no"/>
+  <title>SecureVault Pro - Professional Password & Link Manager</title>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200" />
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&family=Lora:wght@500;600&display=swap" rel="stylesheet">
+
+  <style>
+    :root {
+      /* Default 'blue' color palette */
+      --primary-color: #007BFF;
+      --primary-light: #409CFF;
+
+      /* Default 'sky' gradient for light mode */
+      --bg-header: linear-gradient(199deg, #007BFF, #00A2FF);
+
+      /* Default 'solid' background & text for light mode */
+      --bg-main: #F4F6F8;
+      --text-dark: #212529; /* Primary text color */
+      --text-secondary: #6c757d; /* Labels and hints */
+      
+      --text-light: #FFFFFF;
+      --card-bg: #FFFFFF;
+      --border-color: #dee2e6;
+      --success: #28a745;
+      --danger: #dc3545;
+      --warning: #ffc107;
+      --shadow-sm: 0 2px 4px rgba(0,0,0,0.05);
+      --shadow-md: 0 4px 12px rgba(0,0,0,0.1);
+      --font-body: 'Roboto', sans-serif;
+      --font-heading: 'Lora', serif;
+      --dialog-overlay-bg: rgba(0, 0, 0, 0.5);
+    }
+    
+    body.dark-mode {
+        --bg-header: linear-gradient(135deg, #0056b3, #007BFF);
+        --bg-main: #121212;
+        --text-dark: #EAEAEA;
+        --text-secondary: #a0a0a0;
+        --card-bg: #1E1E1E;
+        --border-color: #444;
+        --dialog-overlay-bg: rgba(0, 0, 0, 0.7);
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    
+    html, body {
+        height: 100%;
+        overflow-x: hidden;
+    }
+
+    body {
+      font-family: var(--font-body);
+      background: var(--bg-main); 
+      color: var(--text-dark);
+      min-height: 100vh;
+      line-height: 1.6;
+      transition: background 0.3s, color 0.3s;
+      -webkit-user-select: none; user-select: none;
+    }
+    
+    input, textarea, .field-content, #generatedPassword, #dialogMessage, .about-text p {
+      -webkit-user-select: text; user-select: text;
+    }
+    
+    .screen { display: none; min-height: 100vh; animation: fadeIn 0.4s ease-out; }
+    @keyframes fadeIn { from { opacity: 0; transform: translateY(5px); } to { opacity: 1; transform: translateY(0); } }
+    .screen.visible { display: block !important; }
+
+    .header-hero {
+      background: var(--bg-header);
+      color: var(--text-light);
+      padding: 40px 20px 80px 20px;
+      border-bottom-left-radius: 30px;
+      border-bottom-right-radius: 30px;
+      transition: background 0.3s;
+    }
+    
+    .header-hero h2 {
+      font-family: var(--font-heading);
+      font-size: 2.2rem;
+      font-weight: 600; text-align: left; display: flex; align-items: center; justify-content: flex-start; gap: 15px; margin: 0; border: none;
+    }
+
+    .content-area { padding: 0 20px 120px 20px; margin-top: -60px; }
+
+    #lockScreen { 
+        background: var(--bg-header);
+        transition: background 0.3s;
+    }
+    .lock-screen-content {
+        min-height: 100vh;
+        display: flex; flex-direction: column; justify-content: center;
+        align-items: center; padding: 20px;
+    }
+    #lockScreen h1 { font-family: var(--font-heading); color: var(--text-light); font-size: 2.5rem; text-align:center; }
+    #lockScreen .card { background: color-mix(in srgb, var(--card-bg) 90%, transparent); backdrop-filter: blur(10px); }
+
+    .search-card { background: var(--card-bg); border-radius: 16px; padding: 10px; box-shadow: var(--shadow-md); margin-bottom: 30px; }
+    #searchInput, #linkSearchInput { width: 100%; border: none; background: transparent; padding: 12px; font-size: 1rem; color: var(--text-dark); }
+    #searchInput:focus, #linkSearchInput:focus { outline: none; }
+    
+    .card { background: var(--card-bg); padding: 0; border-radius: 16px; box-shadow: var(--shadow-sm); margin-bottom: 20px; border: 1px solid var(--border-color); width: 100%; overflow: hidden;}
+    .form-card { padding: 20px; }
+
+    h3 { font-family: var(--font-heading); font-size: 1.5rem; margin-bottom: 1rem; text-align: left; justify-content: flex-start; }
+    .form-group { margin-bottom: 1rem; }
+    label { display: block; margin-bottom: .5rem; font-weight: 500; color: var(--text-secondary); }
+    input, textarea, button, select { width: 100%; padding: 12px 14px; border: 1px solid var(--border-color); border-radius: 8px; font-size: 1rem; font-family: inherit; background-color: color-mix(in srgb, var(--bg-main) 50%, transparent); color: var(--text-dark); }
+    input:focus, textarea:focus, select:focus { outline: none; border-color: var(--primary-color); box-shadow: 0 0 0 3px color-mix(in srgb, var(--primary-color) 20%, transparent); }
+    textarea { min-height: 100px; resize: vertical; }
+
+    button, .contact-btn { background: var(--primary-color); color: white; font-weight: 500; border: none; cursor: pointer; display: inline-flex; align-items: center; justify-content: center; gap: 8px; transition: all 0.2s ease; padding: 12px 16px; margin-top: 10px; text-decoration: none; }
+    button:hover:not(:disabled), .contact-btn:hover { background: var(--primary-light); transform: translateY(-1px); }
+    button.secondary { background-color: #6c757d; }
+    button.danger { background-color: var(--danger); }
+    button.link-style { background: none; color: var(--primary-color); padding: 5px; margin-top: 15px; font-size: 0.9rem; text-align: center; justify-content: center; box-shadow: none; border: none; }
+    
+    .contact-btn { width: 100%; }
+    .contact-btn svg { width: 24px; height: 24px; fill: currentColor; }
+
+    nav { position: fixed; bottom: 0; left: 0; right: 0; background: var(--card-bg); display: flex; justify-content: space-around; padding: 10px 0; box-shadow: 0 -5px 20px rgba(0,0,0,0.08); border-top: 1px solid var(--border-color); z-index: 1000; }
+    nav button { background: none; box-shadow: none; color: var(--text-secondary); border: none; font-size: 0.75rem; font-weight: 500; padding: 8px 12px; border-radius: 12px; transition: all 0.3s ease; display: flex; flex-direction: column; align-items: center; gap: 4px; position: relative; }
+    nav button.active { color: var(--primary-color); font-weight: 700; }
+    nav button.active::after { content: ''; position: absolute; bottom: 0px; left: 50%; transform: translateX(-50%); width: 20px; height: 3px; background-color: var(--primary-color); border-radius: 2px; }
+    nav button.active .material-symbols-outlined { font-variation-settings: 'FILL' 1; }
+    .material-symbols-outlined { vertical-align: bottom; }
+    
+    .strength-meter { height: 5px; background: #e9ecef; border-radius: 5px; margin-top: 8px; overflow: hidden; }
+    .strength-bar { height: 100%; transition: width 0.3s ease; }
+    .strength-weak { background: var(--danger); } .strength-medium { background: var(--warning); } .strength-strong { background: var(--success); }
+    .checkbox-group, .switch-group { display: flex; align-items: center; gap: 10px; margin: 1rem 0; }
+    .checkbox-group input { width: auto; }
+    .switch-group .switch { position: relative; display: inline-block; width: 50px; height: 28px; }
+    .switch-group .switch input { opacity: 0; width: 0; height: 0; }
+    .switch-group .slider { position: absolute; cursor: pointer; top: 0; left: 0; right: 0; bottom: 0; background-color: #ccc; transition: .4s; border-radius: 34px; }
+    .switch-group .slider:before { position: absolute; content: ""; height: 20px; width: 20px; left: 4px; bottom: 4px; background-color: white; transition: .4s; border-radius: 50%; }
+    .switch-group input:checked + .slider { background-color: var(--primary-color); }
+    .switch-group input:checked + .slider:before { transform: translateX(22px); }
+
+    .hint-display { background-color: var(--bg-main); border: 1px dashed var(--border-color); padding: 15px; border-radius: 8px; margin: 1.5rem 0; text-align: center; font-style: italic; color: var(--text-secondary); }
+
+    .dialog-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: var(--dialog-overlay-bg); backdrop-filter: blur(4px); z-index: 2000; display: flex; align-items: center; justify-content: center; opacity: 0; visibility: hidden; transition: opacity 0.2s ease-in-out; }
+    .dialog-overlay.visible { opacity: 1; visibility: visible; }
+    .dialog-box { background: var(--card-bg); color: var(--text-dark); padding: 25px; border-radius: 16px; box-shadow: 0 10px 30px rgba(0,0,0,0.1); width: calc(100% - 40px); max-width: 400px; text-align: center; transform: scale(0.95); transition: transform 0.2s ease-in-out; }
+    .dialog-overlay.visible .dialog-box { transform: scale(1); }
+    
+    .about-text h4 { font-size: 1.1rem; font-weight: 700; color: var(--primary-color); margin-top: 1.5rem; margin-bottom: 0.5rem; }
+    .about-text p { margin-bottom: 1rem; color: var(--text-secondary); }
+
+    .theme-options { margin-top: 1rem; }
+    .theme-options h4 { font-size: 1rem; font-weight: 500; color: var(--text-secondary); margin-bottom: 0.75rem; }
+    .swatch-container { display: flex; flex-wrap: wrap; gap: 15px; }
+    .swatch { width: 40px; height: 40px; border-radius: 50%; cursor: pointer; border: 3px solid var(--border-color); transition: all 0.2s ease; display: flex; align-items: center; justify-content: center; }
+    .swatch.active { border-color: var(--primary-color); transform: scale(1.1); }
+    .swatch .material-symbols-outlined { color: white; opacity: 0; transition: opacity 0.2s; text-shadow: 0 0 3px rgba(0,0,0,0.5); }
+    .swatch.active .material-symbols-outlined { opacity: 1; }
+    
+    /* --- MODERN CARD STYLES --- */
+    .item-card-modern { padding: 0; }
+    .item-card-modern .card-header {
+      display: flex;
+      align-items: center;
+      gap: 15px;
+      padding: 15px;
+      cursor: pointer;
+    }
+    .item-card-modern .favicon {
+        width: 40px;
+        height: 40px;
+        border-radius: 8px;
+        background-color: var(--bg-main);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: var(--text-secondary);
+        flex-shrink: 0;
+        padding: 8px; /* Padding for the SVG inside */
+    }
+    .item-card-modern .card-title-group {
+      flex-grow: 1;
+      overflow: hidden;
+    }
+    .item-card-modern .card-title {
+      font-size: 1.25rem;
+      font-weight: 500;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      color: var(--text-dark);
+    }
+    .item-card-modern .card-subtitle {
+      font-size: 0.9rem;
+      color: var(--text-secondary);
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+    .item-card-modern .password-display {
+      font-size: 1rem;
+      font-family: monospace;
+      color: var(--text-dark);
+      margin-top: 4px;
+      letter-spacing: 2px;
+      height: 20px;
+      line-height: 20px;
+      transition: all 0.2s ease-out;
+      opacity: 0;
+    }
+    .item-card-modern .password-display.visible {
+        opacity: 1;
+    }
+
+    .item-card-modern .card-actions-footer {
+      display: flex;
+      justify-content: space-around;
+      border-top: 1px solid var(--border-color);
+      background-color: color-mix(in srgb, var(--card-bg) 95%, var(--bg-main));
+    }
+    .item-card-modern .footer-btn {
+        flex-grow: 1;
+        background: none;
+        border: none;
+        color: var(--text-secondary);
+        padding: 12px;
+        cursor: pointer;
+        font-size: 0.85rem;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 8px;
+        transition: color 0.2s, background-color 0.2s;
+        margin:0;
+    }
+    .item-card-modern .footer-btn:hover {
+        background-color: var(--bg-main);
+        color: var(--primary-color);
+    }
+    .item-card-modern .footer-btn + .footer-btn {
+        border-left: 1px solid var(--border-color);
+    }
+    .item-card-modern .footer-btn .material-symbols-outlined {
+        font-size: 1.3rem;
+        font-variation-settings: 'FILL' 0;
+    }
+  </style>
+</head>
+<body>
+
+  <div id="customDialogOverlay" class="dialog-overlay">
+    <div id="customDialogBox" class="dialog-box">
+      <h3 id="dialogTitle"></h3>
+      <p id="dialogMessage"></p>
+      <div id="dialogButtons" class="dialog-buttons"></div>
+    </div>
+  </div>
+
+  <div class="screen visible" id="lockScreen">
+    <div class="lock-screen-content">
+      <h1 id="lockScreenTitle"><span class="material-symbols-outlined" style="font-size: 2.8rem;">shield</span> SecureVault Pro</h1>
+      <div class="card" id="lockScreenCard" style="margin-top: 30px; max-width: 420px; padding: 20px;"></div>
+    </div>
+  </div>
+
+  <div class="screen" id="homeScreen"><div class="header-hero"><h2><span class="material-symbols-outlined">key</span>Your Credentials</h2></div><div class="content-area"><div class="search-card"><input type="text" id="searchInput" placeholder="Search credentials..." /></div><div id="entryList"></div></div></div>
+  <div class="screen" id="linksScreen"><div class="header-hero"><h2><span class="material-symbols-outlined">link</span>Your Links</h2></div><div class="content-area"><div class="search-card"><input type="text" id="linkSearchInput" placeholder="Search links..." /></div><div id="linksList"></div></div></div>
+  <div class="screen" id="addScreen"><div class="header-hero"><h2><span class="material-symbols-outlined">add</span>Add Credential</h2></div><div class="content-area"><div class="card form-card"><form id="credentialForm"><input type="hidden" id="editIndex" value="-1" /><div class="form-group"><label for="service">Service Name *</label><input type="text" id="service" required /></div><div class="form-group"><label for="category">Category</label><select id="category"><option value="">Select Category</option><option value="social">Social Media</option><option value="email">Email</option><option value="banking">Banking</option><option value="shopping">Shopping</option><option value="work">Work</option><option value="entertainment">Entertainment</option><option value="other">Other</option></select></div><div class="form-group"><label for="username">Username/ID *</label><input type="text" id="username" required /></div><div class="form-group"><label for="email">Associated Email</label><input type="email" id="email" /></div><div class="form-group"><label for="password">Password *</label><input type="password" id="password" required /><div class="strength-meter"><div class="strength-bar" id="strengthBar"></div></div><small id="strengthText"></small></div><div class="form-group"><label for="about">Notes</label><textarea id="about"></textarea></div><div class="checkbox-group"><input type="checkbox" id="isFavorite" /><label for="isFavorite">Mark as Favorite</label></div><button type="submit" id="saveBtn"><span class="material-symbols-outlined">save</span> Save</button><button type="button" class="secondary" id="cancelEditBtn" style="display: none;"><span class="material-symbols-outlined">cancel</span> Cancel</button></form></div><div class="card form-card password-generator"><h3><span class="material-symbols-outlined">auto_fix_high</span> Password Generator</h3><div class="form-group"><label for="passwordLength">Length: <span id="lengthValue">16</span></label><input type="range" id="passwordLength" min="8" max="64" value="16" /></div><div class="checkbox-group"><input type="checkbox" id="includeUppercase" checked /><label>Uppercase</label></div><div class="checkbox-group"><input type="checkbox" id="includeLowercase" checked /><label>Lowercase</label></div><div class="checkbox-group"><input type="checkbox" id="includeNumbers" checked /><label>Numbers</label></div><div class="checkbox-group"><input type="checkbox" id="includeSymbols" checked /><label>Symbols</label></div><div class="field-content" id="generatedPassword" style="margin-bottom: 1rem; text-align: center;">...</div><button type="button" id="generatePasswordBtn"><span class="material-symbols-outlined">autorenew</span> Generate</button><button type="button" id="useGeneratedPasswordBtn" class="secondary"><span class="material-symbols-outlined">content_paste_go</span> Use Password</button></div></div></div>
+  <div class="screen" id="addLinkScreen"><div class="header-hero"><h2><span class="material-symbols-outlined">add</span>Add Link</h2></div><div class="content-area"><div class="card form-card"><form id="linkForm"><input type="hidden" id="editLinkIndex" value="-1" /><div class="form-group"><label for="linkName">Link Name *</label><input type="text" id="linkName" required /></div><div class="form-group"><label for="linkUrl">URL *</label><input type="url" id="linkUrl" placeholder="https://example.com" required /></div><div class="form-group"><label for="linkCategory">Category</label><select id="linkCategory"><option value="">Select Category</option><option value="work">Work</option><option value="personal">Personal</option><option value="resources">Resources</option><option value="social">Social</option><option value="tools">Tools</option><option value="other">Other</option></select></div><div class="form-group"><label for="linkDescription">Description</label><textarea id="linkDescription"></textarea></div><div class="checkbox-group"><input type="checkbox" id="isLinkFavorite" /><label>Mark as Favorite</label></div><button type="submit" id="saveLinkBtn"><span class="material-symbols-outlined">save</span> Save Link</button><button type="button" class="secondary" id="cancelLinkEditBtn" style="display: none;"><span class="material-symbols-outlined">cancel</span> Cancel Edit</button></form></div></div></div>
+  <div class="screen" id="settingsScreen"><div class="header-hero"><h2><span class="material-symbols-outlined">settings</span>Settings</h2></div><div class="content-area"><div class="card form-card"><h3>Appearance</h3><div class="switch-group"><label for="darkModeToggle">Dark Mode</label><label class="switch"><input type="checkbox" id="darkModeToggle"><span class="slider"></span></label></div><div class="theme-options"><h4>Primary Color</h4><div id="colorPaletteContainer" class="swatch-container"></div><h4 style="margin-top: 1.5rem;">Header Gradient</h4><div id="gradientPaletteContainer" class="swatch-container"></div><h4 style="margin-top: 1.5rem;">Background Gradient</h4><div id="backgroundPaletteContainer" class="swatch-container"></div><h4 style="margin-top: 1.5rem;">Text Color</h4><div id="textColorPaletteContainer" class="swatch-container"></div></div></div><div class="card form-card"><h3>Change Master Password</h3><form id="changePassForm"><div class="form-group"><label for="currentPass">Current Password</label><input type="password" id="currentPass" required/></div><div class="form-group"><label for="newPass">New Master Password</label><input type="password" id="newPass" required/></div><button type="submit"><span class="material-symbols-outlined">update</span> Update Password</button></form></div><div class="card form-card"><h3>Password Recovery Hint</h3><p style="color: var(--text-secondary); margin-bottom: 1rem;">Set or update your hint.</p><form id="hintForm"><div class="form-group"><label for="passwordHintInput">Your Hint</label><input type="text" id="passwordHintInput" placeholder="e.g., My first pet's name" /></div><div style="display: flex; gap: 10px;"><button type="submit"><span class="material-symbols-outlined">save</span> Save Hint</button><button type="button" id="removeHintBtn" class="danger"><span class="material-symbols-outlined">delete</span> Remove</button></div></form></div><div class="card form-card"><h3>Auto-Lock Settings</h3><div class="form-group"><label for="autoLockTime">Auto-lock after inactivity:</label><select id="autoLockTime"><option value="0">Disabled</option><option value="1">1 minute</option><option value="5">5 minutes</option><option value="15">15 minutes</option><option value="30">30 minutes</option></select></div></div><div class="card form-card"><h3>Data Management</h3><div style="display: flex; gap: 15px; flex-wrap: wrap;"><button id="exportDataBtn"><span class="material-symbols-outlined">file_download</span> Export</button><button id="importDataBtn" onclick="document.getElementById('importFile').click()"><span class="material-symbols-outlined">file_upload</span> Import</button><input type="file" id="importFile" accept=".json" style="display: none;" /></div></div>
+  
+  <!-- === NEW ABOUT & CONTACT SECTION START === -->
+  <div class="card form-card">
+    <h3>About & Security</h3>
+    <div class="about-text">
+        <p>SecureVault Pro is designed with a singular focus: protecting your digital life with uncompromising security and absolute privacy.</p>
+        
+        <h4><span class="material-symbols-outlined" style="vertical-align: sub; margin-right: 8px;">dns</span>Zero-Knowledge & Client-Side</h4>
+        <p>Your data is yours alone. This application operates entirely within your browser. Your Master Password and all your stored credentials are never sent to any server. We have zero access to your information, ensuring complete privacy.</p>
+
+        <h4><span class="material-symbols-outlined" style="vertical-align: sub; margin-right: 8px;">enhanced_encryption</span>Advanced Encryption Standard</h4>
+        <p>Your entire vault is encrypted using <strong>AES-256 GCM</strong>, a military-grade standard trusted by security professionals worldwide. This not only encrypts your data but also ensures its integrity, protecting it from being tampered with.</p>
+
+        <h4><span class="material-symbols-outlined" style="vertical-align: sub; margin-right: 8px;">key</span>Robust Key Derivation</h4>
+        <p>Your Master Password is not stored. Instead, it is processed through a strong Key Derivation Function (<strong>PBKDF2</strong>) with 100,000 iterations. This makes your password highly resistant to brute-force attacks, turning even a simple password into a formidable defense.</p>
+        
+        <h4 style="margin-top: 2rem;">Contact & Support</h4>
+        <p>Have questions or feedback? Reach out to us directly. We are committed to continuously improving your experience.</p>
+        <a href="https://t.me/1234" target="_blank" rel="noopener noreferrer" class="contact-btn">
+            <svg viewBox="0 0 24 24" fill="currentColor"><path d="M9.78 18.65l.28-4.23 7.68-6.92c.34-.31-.07-.46-.52-.19L7.74 13.3 3.64 12c-.88-.25-.88-1.47 0-1.82l15.55-5.99c.79-.3 1.41.25 1.15 1.25l-2.88 13.54c-.23.87-1.14 1.08-1.74.52l-4.25-3.13-2.02 1.95c-.23.23-.42.42-.83.42z"></path></svg>
+            Contact us on Telegram
+        </a>
+    </div>
+  </div>
+  <!-- === NEW ABOUT & CONTACT SECTION END === -->
+  
+  <div class="card form-card"><h3>Reset Vault</h3><p style="color: var(--text-secondary); margin-bottom: 1rem;">This permanently deletes all data and cannot be undone.</p><button class="danger" id="clearAllDataBtn"><span class="material-symbols-outlined">delete_forever</span> Delete All Data</button></div></div></div>
+  <nav id="navBar" style="display: none;"><button data-screen="homeScreen" class="active"><span class="material-symbols-outlined">key</span><span>Credentials</span></button><button data-screen="linksScreen"><span class="material-symbols-outlined">link</span><span>Links</span></button><button id="addBtn"><span class="material-symbols-outlined">add_circle</span><span>Add</span></button><button data-screen="settingsScreen"><span class="material-symbols-outlined">settings</span><span>Settings</span></button></nav>
+
+<script>
+// --- START: CUSTOM SVG FALLBACKS ---
+const ICON_LINK_SVG = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" width="100%" height="100%"><path d="M21.0592,14.0228C21.3575,13.7354 21.3664,13.2607 21.079,12.9623C20.7916,12.664 20.3168,12.6551 20.0185,12.9425L21.0592,14.0228ZM14.3421,19.4518L13.8218,18.9117L14.3421,19.4518ZM5.3287,10.7694L4.8083,10.2292L5.3287,10.7694ZM12.3704,3.9862L12.8907,4.5264L12.3704,3.9862ZM18.5671,9.9554L18.0468,9.4153L18.5671,9.9554ZM11.5254,16.7386L12.0457,17.2787L11.5254,16.7386ZM8.1454,13.4826L7.625,12.9425L8.1454,13.4826ZM14.8624,8.0536C15.1607,7.7663 15.1696,7.2915 14.8823,6.9932C14.5949,6.6948 14.1201,6.686 13.8218,6.9733L14.8624,8.0536ZM8.1454,16.7386L7.625,17.2787H7.625L8.1454,16.7386ZM18.5671,3.9862L19.0875,3.4461V3.4461L18.5671,3.9862ZM5.3287,19.4518L5.849,18.9117L5.3287,19.4518ZM20.0185,12.9425L13.8218,18.9117L14.8624,19.992L21.0592,14.0228L20.0185,12.9425ZM5.849,11.3095L12.8907,4.5264L11.8501,3.4461L4.8083,10.2292L5.849,11.3095ZM18.0468,9.4153L11.0051,16.1984L12.0457,17.2787L19.0875,10.4956L18.0468,9.4153ZM8.6657,14.0228L14.8624,8.0536L13.8218,6.9733L7.625,12.9425L8.6657,14.0228ZM8.6657,16.1984C8.0386,15.5943 8.0386,14.6269 8.6657,14.0228L7.625,12.9425C6.3854,14.1366 6.3854,16.0846 7.625,17.2787L8.6657,16.1984ZM11.0051,16.1984C10.3622,16.8177 9.3086,16.8177 8.6657,16.1984L7.625,17.2787C8.8489,18.4576 10.8219,18.4576 12.0457,17.2787L11.0051,16.1984ZM18.0468,4.5264C19.4518,5.8797 19.4518,8.0619 18.0468,9.4153L19.0875,10.4956C21.1049,8.5522 21.1049,5.3894 19.0875,3.4461L18.0468,4.5264ZM12.8907,4.5264C14.3115,3.1579 16.6261,3.1579 18.0468,4.5264L19.0875,3.4461C17.0858,1.518 13.8517,1.518 11.8501,3.4461L12.8907,4.5264ZM5.849,18.9117C3.6662,16.8091 3.6662,13.4121 5.849,11.3095L4.8083,10.2292C2.0131,12.9218 2.0131,17.2994 4.8083,19.992L5.849,18.9117ZM13.8218,18.9117C11.6232,21.0294 8.0475,21.0294 5.849,18.9117L4.8083,19.992C7.5878,22.6693 12.083,22.6693 14.8624,19.992L13.8218,18.9117Z" /></svg>`;
+const ICON_CREDENTIAL_SVG = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 -960 960 960" fill="currentColor" width="100%" height="100%"><path d="M222-255q63-44 125-67.5T480-346q71 0 133.5 23.5T739-255q44-54 62.5-109T820-480q0-145-97.5-242.5T480-820q-145 0-242.5 97.5T140-480q0 61 19 116t63 109Zm257.81-195q-57.81 0-97.31-39.69-39.5-39.68-39.5-97.5 0-57.81 39.69-97.31 39.68-39.5 97.5-39.5 57.81 0 97.31 39.69 39.5 39.68 39.5 97.5 0 57.81-39.69 97.31-39.68 39.5-97.5 39.5Zm.66 370Q398-80 325-111.5t-127.5-86q-54.5-54.5-86-127.27Q80-397.53 80-480.27 80-563 111.5-635.5q31.5-72.5 86-127t127.27-86q72.76-31.5 155.5-31.5 82.73 0 155.23 31.5 72.5 31.5 127 86t86 127.03q31.5 72.53 31.5 155T848.5-325q-31.5 73-86 127.5t-127.03 86Q562.94-80 480.47-80Zm-.47-60q55 0 107.5-16T691-212q-51-36-104-55t-107-19q-54 0-107 19t-104 55q51 40 103.5 56T480-140Zm0-370q34 0 55.5-21.5T557-587q0-34-21.5-55.5T480-664q-34 0-55.5 21.5T403-587q0 34 21.5 55.5T480-510Zm0-77Zm0 374Z"/></svg>`;
+// --- END: CUSTOM SVG FALLBACKS ---
+
+// --- DIALOG MODULE, THEME CONFIG, UTILITIES, CORE LOGIC (UNCHANGED) ...
+const CustomDialog = { overlay: document.getElementById('customDialogOverlay'), titleElem: document.getElementById('dialogTitle'), messageElem: document.getElementById('dialogMessage'), buttonsElem: document.getElementById('dialogButtons'), alert: function(message, title = 'Notification') { this.titleElem.textContent = title; this.messageElem.innerHTML = message; this.buttonsElem.innerHTML = ''; const okButton = document.createElement('button'); okButton.textContent = 'OK'; okButton.onclick = () => this.hide(); this.buttonsElem.appendChild(okButton); this.show(); okButton.focus(); }, confirm: function(message, title) { return new Promise((resolve) => { this.titleElem.textContent = title; this.messageElem.innerHTML = message; this.buttonsElem.innerHTML = ''; const cancelButton = document.createElement('button'); cancelButton.textContent = 'Cancel'; cancelButton.className = 'secondary'; cancelButton.onclick = () => { this.hide(); resolve(false); }; const confirmButton = document.createElement('button'); confirmButton.textContent = 'Confirm'; confirmButton.onclick = () => { this.hide(); resolve(true); }; this.buttonsElem.appendChild(cancelButton); this.buttonsElem.appendChild(confirmButton); this.show(); confirmButton.focus(); }); }, show: function() { this.overlay.style.display = 'flex'; setTimeout(() => { this.overlay.classList.add('visible'); }, 10); }, hide: function() { this.overlay.classList.remove('visible'); this.overlay.addEventListener('transitionend', (e) => { if (e.target === this.overlay && !this.overlay.classList.contains('visible')) { this.overlay.style.display = 'none'; } }, { once: true }); } };
+const themeConfig = { colors: { blue: { primary: '#007BFF', light: '#409CFF' }, green: { primary: '#28a745', light: '#5cb85c' }, purple: { primary: '#6f42c1', light: '#8b5fce' }, teal: { primary: '#20c997', light: '#4ddac0' }, orange: { primary: '#fd7e14', light: '#ff9a40' } }, gradients: { sky: { light: 'linear-gradient(199deg, #007BFF, #00A2FF)', dark: 'linear-gradient(135deg, #0056b3, #007BFF)' }, sunset: { light: 'linear-gradient(199deg, #ff7e5f, #feb47b)', dark: 'linear-gradient(135deg, #c43a30, #ff5f6d)' }, forest: { light: 'linear-gradient(199deg, #28a745, #5fad56)', dark: 'linear-gradient(135deg, #115707, #138808)' }, royal: { light: 'linear-gradient(199deg, #6f42c1, #9d50bb)', dark: 'linear-gradient(135deg, #4d2b8a, #6f42c1)' }, sea: { light: 'linear-gradient(199deg, #20c997, #59d2b2)', dark: 'linear-gradient(135deg, #0b6d53, #16a085)' } }, backgrounds: { solid: { light: '#F4F6F8', dark: '#121212' }, pearl: { light: 'linear-gradient(to top, #F4F6F8, #FFFFFF)', dark: 'linear-gradient(to top, #121212, #181818)' }, aurora: { light: 'linear-gradient(45deg, #e3f2fd, #e0f2f1)', dark: 'linear-gradient(45deg, #2a2a72, #009ffd)' }, tropical: { light: 'linear-gradient(45deg, #fff3e0, #ffebee)', dark: 'linear-gradient(45deg, #c31432, #240b36)' }, galaxy: { light: 'linear-gradient(120deg, #e3f2fd, #ede7f6)', dark: 'linear-gradient(120deg, #2b3252, #375e97)' }, sunrise: { light: 'linear-gradient(to right, #fffde7, #fff3e0)', dark: 'linear-gradient(to right, #6a3093, #a044ff)' } }, text: { default: { light: '#212529', dark: '#EAEAEA', secondary_light: '#6c757d', secondary_dark: '#a0a0a0' }, graphite: { light: '#495057', dark: '#ced4da', secondary_light: '#868e96', secondary_dark: '#6c757d' }, onyx: { light: '#000000', dark: '#FFFFFF', secondary_light: '#555555', secondary_dark: '#bbbbbb' } }};
+const Utils = { escapeHtml: (str) => { if (typeof str !== 'string') str = String(str || ''); const p = document.createElement('p'); p.textContent = str; return p.innerHTML; }, getHostname: (url) => { try { const parsedUrl = new URL(url); return parsedUrl.hostname; } catch (e) { try { const parsedWithHttp = new URL(`http://${url}`); return parsedWithHttp.hostname; } catch (err) { return null; } } } };
+class CryptoUtils { static async hashPassword(password) { const data = new TextEncoder().encode(password); const hash = await crypto.subtle.digest('SHA-256', data); return Array.from(new Uint8Array(hash)).map(b => b.toString(16).padStart(2, '0')).join(''); } static async deriveKey(password, salt) { const keyMaterial = await crypto.subtle.importKey('raw', new TextEncoder().encode(password), { name: 'PBKDF2' }, false, ['deriveKey']); return crypto.subtle.deriveKey({ name: 'PBKDF2', salt, iterations: 100000, hash: 'SHA-256' }, keyMaterial, { name: 'AES-GCM', length: 256 }, true, ['encrypt', 'decrypt']); } static async encryptData(data, password) { const salt = crypto.getRandomValues(new Uint8Array(16)); const iv = crypto.getRandomValues(new Uint8Array(12)); const key = await this.deriveKey(password, salt); const encrypted = await crypto.subtle.encrypt({ name: 'AES-GCM', iv }, key, new TextEncoder().encode(JSON.stringify(data))); return { salt: Array.from(salt), iv: Array.from(iv), data: Array.from(new Uint8Array(encrypted)) }; } static async decryptData(encryptedObj, password) { try { const salt = new Uint8Array(encryptedObj.salt); const iv = new Uint8Array(encryptedObj.iv); const data = new Uint8Array(encryptedObj.data); const key = await this.deriveKey(password, salt); const decrypted = await crypto.subtle.decrypt({ name: 'AES-GCM', iv }, key, data); return JSON.parse(new TextDecoder().decode(decrypted)); } catch (e) { console.error("Decryption Error:", e); throw new Error('Failed to decrypt data. The password may be incorrect or the data corrupted.'); } } }
+class PasswordGenerator { static generate(options) { const { length = 16, includeUppercase = true, includeLowercase = true, includeNumbers = true, includeSymbols = true } = options; let charset = ''; if (includeUppercase) charset += 'ABCDEFGHIJKLMNOPQRSTUVWXYZ'; if (includeLowercase) charset += 'abcdefghijklmnopqrstuvwxyz'; if (includeNumbers) charset += '0123456789'; if (includeSymbols) charset += '!@#$%^&*()_+-=[]{}|;:,.<>?'; if (!charset) return ''; let password = ''; const array = new Uint8Array(length); crypto.getRandomValues(array); for (let i = 0; i < length; i++) { password += charset[array[i] % charset.length]; } return password; } static checkStrength(password) { let score = 0; if (!password) return { level: 'weak', score: 0 }; if (password.length >= 8) score++; if (password.length >= 12) score++; if (/[a-z]/.test(password) && /[A-Z]/.test(password)) score += 2; if (/[0-9]/.test(password)) score++; if (/[^A-Za-z0-9]/.test(password)) score++; if (score < 3) return { level: 'weak', score }; if (score < 5) return { level: 'medium', score }; return { level: 'strong', score }; } }
+class AutoLock { static timeoutId = null; static init() { this.stop(); const minutes = parseInt(localStorage.getItem('autoLockTime') || '5', 10); if (minutes > 0) { this.timeoutId = setTimeout(() => this.lock(), minutes * 60 * 1000); } } static stop() { if (this.timeoutId) clearTimeout(this.timeoutId); } static reset() { this.init(); } static lock() { this.stop(); currentMasterPassword = ''; document.getElementById('navBar').style.display = 'none'; showScreen('lockScreen'); CustomDialog.alert('Session locked due to inactivity.', 'Session Locked'); } }
+let currentMasterPassword = '', activeScreenId = 'homeScreen', allEntries = [], allLinks = [];
+document.addEventListener('DOMContentLoaded', () => { applyTheme(); renderLockScreen(); setupEventListeners(); setupDelegatedCardListeners(); populateThemeSwatches(); });
+function showScreen(screenId) { document.querySelectorAll('.screen').forEach(s => s.classList.remove('visible')); const screen = document.getElementById(screenId); if(screen) screen.classList.add('visible'); if (screenId === 'lockScreen') renderLockScreen(); if (screenId === 'settingsScreen') loadSettingsValues(); activeScreenId = screenId; updateActiveNavButton(screenId); if (screenId !== 'addScreen' && screenId !== 'addLinkScreen') clearForms(); }
+function updateActiveNavButton(id) { document.querySelectorAll('nav button[data-screen]').forEach(b => b.classList.toggle('active', b.dataset.screen === id)); }
+function unlockApp() { document.getElementById("navBar").style.display = "flex"; AutoLock.init(); showScreen("homeScreen"); loadAllData(); }
+function setupEventListeners() { document.querySelectorAll('nav button[data-screen]').forEach(btn => btn.addEventListener('click', () => showScreen(btn.dataset.screen))); document.getElementById('addBtn').addEventListener('click', () => showScreen(activeScreenId === 'linksScreen' ? 'addLinkScreen' : 'addScreen')); document.getElementById('credentialForm').addEventListener('submit', (e) => { e.preventDefault(); saveEntry(); }); document.getElementById('linkForm').addEventListener('submit', (e) => { e.preventDefault(); saveLink(); }); document.getElementById('cancelEditBtn').addEventListener('click', () => showScreen('homeScreen')); document.getElementById('cancelLinkEditBtn').addEventListener('click', () => showScreen('linksScreen')); document.getElementById('exportDataBtn').addEventListener('click', exportData); document.getElementById('importFile').addEventListener('change', importData); document.getElementById('clearAllDataBtn').addEventListener('click', async () => { if (await CustomDialog.confirm('DANGER: This will permanently delete all data. Are you sure?', 'Confirm Reset')) clearAllData(); }); document.getElementById('autoLockTime').addEventListener('change', (e) => { localStorage.setItem('autoLockTime', e.target.value); AutoLock.reset(); CustomDialog.alert('Auto-lock time updated.', 'Settings'); }); document.getElementById('password').addEventListener('input', e => updatePasswordStrength(e.target.value)); document.getElementById('passwordLength').addEventListener('input', () => { document.getElementById('lengthValue').textContent = document.getElementById('passwordLength').value; }); document.getElementById('generatePasswordBtn').addEventListener('click', generateAndDisplayPassword); document.getElementById('useGeneratedPasswordBtn').addEventListener('click', useGeneratedPassword); document.getElementById('darkModeToggle').addEventListener('change', (e) => { localStorage.setItem('theme', e.target.checked ? 'dark' : 'light'); applyTheme(); }); document.getElementById('changePassForm').addEventListener('submit', changeMasterPassword); document.getElementById('hintForm').addEventListener('submit', savePasswordHint); document.getElementById('removeHintBtn').addEventListener('click', async () => { if (await CustomDialog.confirm("Are you sure you want to remove your hint?", 'Confirm Removal')) removePasswordHint(); }); ['mousedown', 'mousemove', 'keydown', 'scroll', 'touchstart'].forEach(evt => document.addEventListener(evt, () => AutoLock.reset())); document.getElementById('searchInput').addEventListener('input', displayEntries); document.getElementById('linkSearchInput').addEventListener('input', displayLinks); }
+function applyTheme() { const root = document.documentElement; const mode = localStorage.getItem('theme') || 'light'; const colorName = localStorage.getItem('colorPalette') || 'blue'; const gradientName = localStorage.getItem('gradientPalette') || 'sky'; const backgroundName = localStorage.getItem('backgroundPalette') || 'solid'; const textColorName = localStorage.getItem('textColorPalette') || 'default'; document.body.classList.toggle('dark-mode', mode === 'dark'); root.style.setProperty('--primary-color', themeConfig.colors[colorName].primary); root.style.setProperty('--primary-light', themeConfig.colors[colorName].light); root.style.setProperty('--bg-header', themeConfig.gradients[gradientName][mode]); root.style.setProperty('--bg-main', themeConfig.backgrounds[backgroundName][mode]); root.style.setProperty('--text-dark', themeConfig.text[textColorName][mode]); root.style.setProperty('--text-secondary', themeConfig.text[textColorName][mode === 'light' ? 'secondary_light' : 'secondary_dark']); if (document.getElementById('colorPaletteContainer')) { loadSettingsValues(); } }
+function populateThemeSwatches() { const createSwatches = (containerId, config, storageKey, styleProp) => { const container = document.getElementById(containerId); container.innerHTML = ''; for (const name in config) { const swatch = document.createElement('button'); swatch.className = 'swatch'; swatch.dataset.name = name; swatch.style.background = typeof styleProp === 'function' ? styleProp(name) : config[name][styleProp || 'primary' || 'light']; swatch.innerHTML = `<span class="material-symbols-outlined">check</span>`; swatch.onclick = () => { localStorage.setItem(storageKey, name); applyTheme(); }; container.appendChild(swatch); } }; createSwatches('colorPaletteContainer', themeConfig.colors, 'colorPalette'); createSwatches('gradientPaletteContainer', themeConfig.gradients, 'gradientPalette', (name) => themeConfig.gradients[name].light); createSwatches('backgroundPaletteContainer', themeConfig.backgrounds, 'backgroundPalette', (name) => themeConfig.backgrounds[name].light); createSwatches('textColorPaletteContainer', themeConfig.text, 'textColorPalette', (name) => themeConfig.text[name].light); }
+function loadSettingsValues() { const mode = localStorage.getItem('theme') || 'light'; document.getElementById('darkModeToggle').checked = mode === 'dark'; document.getElementById('autoLockTime').value = localStorage.getItem('autoLockTime') || '5'; document.getElementById('passwordHintInput').value = localStorage.getItem('masterPasswordHint') || ''; const updateSwatches = (containerId, storageKey, defaultConfig, styleCallback) => { document.querySelectorAll(`#${containerId} .swatch`).forEach(s => { s.classList.toggle('active', s.dataset.name === (localStorage.getItem(storageKey) || defaultConfig)); if (styleCallback) s.style.background = styleCallback(s.dataset.name, mode); }); }; updateSwatches('colorPaletteContainer', 'colorPalette', 'blue'); updateSwatches('gradientPaletteContainer', 'gradientPalette', 'sky', (name, mode) => themeConfig.gradients[name][mode]); updateSwatches('backgroundPaletteContainer', 'backgroundPalette', 'solid', (name, mode) => themeConfig.backgrounds[name][mode]); updateSwatches('textColorPaletteContainer', 'textColorPalette', 'default', (name, mode) => themeConfig.text[name][mode === 'light' ? 'light' : 'dark']); }
+async function loadAllData() { try { allEntries = (await getDecryptedData('vaultData')) || []; allLinks = (await getDecryptedData('linksData')) || []; } catch (e) { CustomDialog.alert("Could not load data. It may be corrupt or the password is wrong.", 'Data Error'); allEntries = []; allLinks = []; } displayEntries(); displayLinks(); }
+async function getDecryptedData(key) { const data = localStorage.getItem(key); if (!data) return []; return await CryptoUtils.decryptData(JSON.parse(data), currentMasterPassword); }
+async function saveData(key, data) { const encrypted = await CryptoUtils.encryptData(data, currentMasterPassword); localStorage.setItem(key, JSON.stringify(encrypted)); }
+function renderLockScreen() { const titleElem = document.getElementById('lockScreenTitle'); titleElem.innerHTML = `<span class="material-symbols-outlined" style="font-size: 2.8rem;">shield</span> SecureVault Pro`; const container = document.getElementById('lockScreenCard'); const masterPasswordHash = localStorage.getItem("masterPasswordHash"); container.innerHTML = masterPasswordHash ? `<h3 class="form-card">Enter Master Password</h3><form id="unlockForm" class="form-card" style="padding-top:0"><div class="form-group"><input type="password" id="enteredPass" required autocomplete="current-password" /></div><button type="submit">Unlock</button></form>` : `<h3 class="form-card">Create Your Vault</h3><form id="setupForm" class="form-card" style="padding-top:0"><div class="form-group"><label for="setupPass">Master Password *</label><input type="password" id="setupPass" required autocomplete="new-password"/></div><div class="form-group"><label for="setupHint">Password Hint (Optional)</label><input type="text" id="setupHint" /><small style="color:var(--text-secondary);">A hint for yourself.</small></div><button type="submit">Create Vault</button></form>`; if (masterPasswordHash) { document.getElementById('unlockForm').addEventListener('submit', (e) => { e.preventDefault(); unlock(); }); } else { document.getElementById('setupForm').addEventListener('submit', (e) => { e.preventDefault(); setupVault(); }); } const input = document.getElementById('enteredPass') || document.getElementById('setupPass'); if (input) input.focus(); }
+async function unlock() { const enteredPass = document.getElementById('enteredPass').value; if (!enteredPass) return; if ((await CryptoUtils.hashPassword(enteredPass)) === localStorage.getItem("masterPasswordHash")) { currentMasterPassword = enteredPass; unlockApp(); } else { CustomDialog.alert('The password you entered is incorrect.', 'Login Failed'); const unlockForm = document.getElementById('unlockForm'); if (unlockForm && !document.getElementById('forgotPasswordBtn')) { const forgotBtn = document.createElement('button'); forgotBtn.id = 'forgotPasswordBtn'; forgotBtn.className = 'link-style'; forgotBtn.type = 'button'; forgotBtn.textContent = 'Forgot Password?'; forgotBtn.onclick = renderForgotPasswordScreen; unlockForm.appendChild(forgotBtn); } } }
+function renderForgotPasswordScreen() { document.getElementById('lockScreenTitle').textContent = 'Password Reset'; const container = document.getElementById('lockScreenCard'); const hint = localStorage.getItem('masterPasswordHint'); const hintHtml = hint ? `<p>Your password hint is:</p><div class="hint-display">${Utils.escapeHtml(hint)}</div>` : `<p>No hint was saved.</p>`; container.innerHTML = `<div class="form-card"><h3><span class="material-symbols-outlined">warning</span> Vault Reset</h3><p style="color: var(--danger);">Resetting will <strong>PERMANENTLY DELETE</strong> all saved data.</p>${hintHtml}<p>If the hint helps, go back and try again. Otherwise, you must reset.</p><div style="display: flex; gap: 10px; margin-top: 1rem;"><button id="goBackBtn" class="secondary"><span class="material-symbols-outlined">arrow_back</span>Go Back</button><button id="resetFromForgotBtn" class="danger"><span class="material-symbols-outlined">delete_forever</span>Reset Vault</button></div></div>`; document.getElementById('goBackBtn').onclick = renderLockScreen; document.getElementById('resetFromForgotBtn').onclick = async () => { if (await CustomDialog.confirm('This is your FINAL confirmation. All data will be lost. Are you absolutely sure?', 'Final Warning')) clearAllData(); }; }
+async function setupVault() { const newPass = document.getElementById('setupPass').value; const hint = document.getElementById('setupHint').value.trim(); if (newPass.length < 8) { CustomDialog.alert("Password must be at least 8 characters long."); return; } localStorage.setItem('masterPasswordHash', await CryptoUtils.hashPassword(newPass)); if (hint) { localStorage.setItem('masterPasswordHint', hint); } currentMasterPassword = newPass; unlockApp(); }
+function savePasswordHint(e) { e.preventDefault(); const hint = document.getElementById('passwordHintInput').value.trim(); localStorage.setItem('masterPasswordHint', hint); CustomDialog.alert('Password hint saved!', 'Settings Updated'); }
+function removePasswordHint() { localStorage.removeItem('masterPasswordHint'); document.getElementById('passwordHintInput').value = ''; CustomDialog.alert('Password hint removed.', 'Settings Updated'); }
+async function changeMasterPassword(e) { e.preventDefault(); const currentPassInput = document.getElementById('currentPass'); const newPassInput = document.getElementById('newPass'); const currentPass = currentPassInput.value; const newPass = newPassInput.value; if (!currentPass || !newPass) { CustomDialog.alert("Both password fields are required.", "Input Error"); return; } if (newPass.length < 8) { CustomDialog.alert("Your new password must be at least 8 characters long.", "Password Too Short"); return; } if (currentPass === newPass) { CustomDialog.alert("The new password must be different from the current one.", "Update Failed"); return; } const currentHash = localStorage.getItem("masterPasswordHash"); const enteredHash = await CryptoUtils.hashPassword(currentPass); if (enteredHash !== currentHash || currentPass !== currentMasterPassword) { CustomDialog.alert("The current password you entered is incorrect.", "Authentication Failed"); return; } try { const confirmed = await CustomDialog.confirm( 'Are you sure you want to change your master password? This will re-encrypt all your data.', 'Confirm Password Change' ); if (!confirmed) return; const newMasterPassword = newPass; await saveData('vaultData', allEntries, newMasterPassword); await saveData('linksData', allLinks, newMasterPassword); currentMasterPassword = newMasterPassword; localStorage.setItem("masterPasswordHash", await CryptoUtils.hashPassword(newMasterPassword)); CustomDialog.alert('Your master password has been changed successfully.', 'Success'); currentPassInput.value = ''; newPassInput.value = ''; } catch (error) { console.error("Failed to change master password:", error); CustomDialog.alert('An unexpected error occurred. Your old password is still active.', 'Error'); currentMasterPassword = currentPass; } }
+async function exportData() { try { const dataToExport = { vaultData: allEntries, linksData: allLinks, settings: { theme: localStorage.getItem('theme'), colorPalette: localStorage.getItem('colorPalette'), gradientPalette: localStorage.getItem('gradientPalette'), backgroundPalette: localStorage.getItem('backgroundPalette'), textColorPalette: localStorage.getItem('textColorPalette'), autoLockTime: localStorage.getItem('autoLockTime') } }; const jsonString = JSON.stringify(dataToExport, null, 2); const blob = new Blob([jsonString], { type: 'application/json' }); const url = URL.createObjectURL(blob); const a = document.createElement('a'); a.href = url; a.download = `SecureVault_Export_${new Date().toISOString().slice(0,10)}.json`; document.body.appendChild(a); a.click(); document.body.removeChild(a); URL.revokeObjectURL(url); } catch (error) { CustomDialog.alert("An error occurred during export.", "Export Failed"); } }
+async function importData(event) { const file = event.target.files[0]; if (!file) return; if (file.type !== 'application/json') { CustomDialog.alert('Please select a valid JSON backup file.', 'Invalid File Type'); event.target.value = ''; return; } const confirmed = await CustomDialog.confirm( 'Importing will <strong>OVERWRITE</strong> all current data in your vault. Are you sure?', 'Confirm Data Import' ); if (!confirmed) { event.target.value = ''; return; } const reader = new FileReader(); reader.onload = async (e) => { try { const importedData = JSON.parse(e.target.result); if (!importedData.hasOwnProperty('vaultData') || !importedData.hasOwnProperty('linksData')) { throw new Error("File is not a valid SecureVault backup."); } allEntries = importedData.vaultData || []; allLinks = importedData.linksData || []; await saveData('vaultData', allEntries); await saveData('linksData', allLinks); if (importedData.settings) { const { settings } = importedData; for (const key in settings) { if (settings[key]) localStorage.setItem(key, settings[key]); } applyTheme(); } await loadAllData(); CustomDialog.alert('Data imported successfully!', 'Import Complete'); } catch (error) { CustomDialog.alert(`Failed to import data: ${error.message}`, 'Import Failed'); } finally { event.target.value = ''; } }; reader.onerror = () => { CustomDialog.alert('Error reading the file.', 'File Read Error'); event.target.value = ''; }; reader.readAsText(file); }
+function clearAllData() { localStorage.clear(); CustomDialog.alert('All data has been cleared. The app will reload.', 'Vault Reset'); setTimeout(() => location.reload(), 2000); }
+
+// --- START: FINAL MODERNIZED CARD RENDERING LOGIC ---
+function displayEntries() {
+    const container = document.getElementById('entryList');
+    container.innerHTML = ''; // Always clear previous content
+    const searchTerm = document.getElementById('searchInput').value.toLowerCase();
+    const filtered = allEntries.filter(e => e.service.toLowerCase().includes(searchTerm) || (e.username && e.username.toLowerCase().includes(searchTerm)));
+    if (filtered.length === 0) {
+        container.innerHTML = '<p style="text-align:center; color: var(--text-secondary);">No credentials found.</p>';
+        return;
+    }
+    const fragment = document.createDocumentFragment();
+    filtered.forEach(entry => {
+        const originalIndex = allEntries.indexOf(entry);
+        if(originalIndex > -1) fragment.appendChild(createEntryCardModern(entry, originalIndex));
+    });
+    container.appendChild(fragment);
+}
+function displayLinks() {
+    const container = document.getElementById('linksList');
+    container.innerHTML = '';
+    const searchTerm = document.getElementById('linkSearchInput').value.toLowerCase();
+    const filtered = allLinks.filter(l => l.name.toLowerCase().includes(searchTerm) || l.url.toLowerCase().includes(searchTerm));
+    if (filtered.length === 0) {
+        container.innerHTML = '<p style="text-align:center; color: var(--text-secondary);">No links found.</p>';
+        return;
+    }
+    const fragment = document.createDocumentFragment();
+    filtered.forEach(link => {
+        const originalIndex = allLinks.indexOf(link);
+        if(originalIndex > -1) fragment.appendChild(createLinkCardModern(link, originalIndex));
+    });
+    container.appendChild(fragment);
+}
+function createEntryCardModern(entry, index) {
+    const createEl = (tag, className) => {
+        const el = document.createElement(tag);
+        if (className) el.className = className;
+        return el;
+    };
+    const createFooterBtn = (label, icon, className, data) => {
+        const btn = createEl('button', `footer-btn ${className}`);
+        Object.keys(data).forEach(key => btn.dataset[key] = data[key]);
+        btn.innerHTML = `<span class="material-symbols-outlined">${icon}</span> ${label}`;
+        return btn;
+    };
+    const card = createEl('div', 'card item-card-modern');
+    card.dataset.index = index;
+    // Header
+    const header = createEl('div', 'card-header');
+    header.dataset.action = 'togglePassword';
+    
+    const faviconContainer = createEl('div', 'favicon');
+    faviconContainer.innerHTML = ICON_CREDENTIAL_SVG;
+
+    const titleGroup = createEl('div', 'card-title-group');
+    const title = createEl('div', 'card-title');
+    title.textContent = entry.service;
+    const subtitle = createEl('div', 'card-subtitle');
+    subtitle.textContent = entry.username || 'No username';
+    const passwordDisplay = createEl('div', 'password-display');
+    passwordDisplay.id = `pass-display-${index}`;
+    passwordDisplay.textContent = '•'.repeat(12);
+    titleGroup.append(title, subtitle, passwordDisplay);
+    header.append(faviconContainer, titleGroup);
+    // Footer
+    const footer = createEl('div', 'card-actions-footer');
+    footer.append(
+        createFooterBtn('Copy User', 'content_copy', 'copy-btn', { text: entry.username || '' }),
+        createFooterBtn('Copy Pass', 'content_copy', 'copy-btn', { text: entry.password || '' }),
+        createFooterBtn('Edit', 'edit', 'edit-btn', { type: 'entry', index }),
+        createFooterBtn('Delete', 'delete', 'danger delete-btn', { type: 'entry', index })
+    );
+    card.append(header, footer);
+    return card;
+}
+function createLinkCardModern(link, index) {
+     const createEl = (tag, className) => {
+        const el = document.createElement(tag);
+        if (className) el.className = className;
+        return el;
+    };
+    const createFooterBtn = (label, icon, className, data) => {
+        const btn = createEl('button', `footer-btn ${className}`);
+        Object.keys(data).forEach(key => btn.dataset[key] = data[key]);
+        btn.innerHTML = `<span class="material-symbols-outlined">${icon}</span> ${label}`;
+        return btn;
+    };
+    const card = createEl('div', 'card item-card-modern');
+    // Header
+    const header = createEl('div', 'card-header open-link-btn'); // Header itself is the open button
+    header.dataset.url = link.url;
+    
+    const faviconContainer = createEl('div', 'favicon');
+    faviconContainer.innerHTML = ICON_LINK_SVG;
+
+    const titleGroup = createEl('div', 'card-title-group');
+    const title = createEl('div', 'card-title');
+    title.textContent = link.name;
+    const subtitle = createEl('div', 'card-subtitle');
+    subtitle.textContent = Utils.getHostname(link.url) || 'Invalid URL';
+    titleGroup.append(title, subtitle);
+    header.append(faviconContainer, titleGroup);
+    // Footer
+    const footer = createEl('div', 'card-actions-footer');
+    footer.append(
+        createFooterBtn('Copy URL', 'content_copy', 'copy-btn', { text: link.url || '' }),
+        createFooterBtn('Edit', 'edit', 'edit-btn', { type: 'link', index }),
+        createFooterBtn('Delete', 'delete', 'danger delete-btn', { type: 'link', index })
+    );
+    card.append(header, footer);
+    return card;
+}
+// --- DELEGATED EVENT LISTENER ---
+function setupDelegatedCardListeners() {
+    const handleCardClick = async (e) => {
+        const button = e.target.closest('.footer-btn, .card-header');
+        if (!button) return;
+        const { text, type, index, url, action } = button.dataset;
+        // Handle footer button actions
+        if(button.classList.contains('footer-btn')) {
+          if (button.classList.contains('copy-btn')) copyToClipboard(text, button);
+          if (button.classList.contains('edit-btn')) editItem(type, index);
+          if (button.classList.contains('delete-btn')) {
+              const item = type === 'entry' ? allEntries[index]?.service : allLinks[index]?.name;
+              if (item && await CustomDialog.confirm(`Delete "${Utils.escapeHtml(item)}"?`, "Confirm Deletion")) {
+                  deleteItem(type, index);
+              }
+          }
+        }
+        // Handle header actions
+        if (action === 'togglePassword') togglePasswordVisibilityModern(button.closest('.item-card-modern'));
+        if (button.classList.contains('open-link-btn') && url) window.open(url, '_blank');
+    };
+    document.getElementById('entryList').addEventListener('click', handleCardClick);
+    document.getElementById('linksList').addEventListener('click', handleCardClick);
+}
+
+// --- CARD ACTIONS ---
+function copyToClipboard(text, btn) { if (text === null || text === undefined) return; navigator.clipboard.writeText(text).then(() => { const originalHTML = btn.innerHTML; btn.innerHTML = `<span class="material-symbols-outlined">check</span> Copied`; btn.style.color = 'var(--success)'; setTimeout(() => { btn.innerHTML = originalHTML; btn.style.color = ''; }, 1500); }).catch(err => CustomDialog.alert('Failed to copy text.', 'Copy Error')); }
+function togglePasswordVisibilityModern(card) {
+    if(!card) return;
+    const index = card.dataset.index;
+    const passwordDisplay = card.querySelector(`#pass-display-${index}`);
+    if(!passwordDisplay) return;
+    const entry = allEntries[index];
+    if(!entry) return;
+    const isHidden = !passwordDisplay.classList.contains('visible');
+    passwordDisplay.textContent = isHidden ? entry.password : '•'.repeat(12);
+    passwordDisplay.classList.toggle('visible', isHidden);
+}
+function editItem(type, index) { const idx = parseInt(index, 10); if(isNaN(idx)) return; if (type === 'entry') { const entry = allEntries[idx]; if(!entry) return; showScreen('addScreen'); document.getElementById('editIndex').value = idx; document.getElementById('service').value = entry.service; document.getElementById('category').value = entry.category; document.getElementById('username').value = entry.username; document.getElementById('email').value = entry.email || ''; document.getElementById('password').value = entry.password; document.getElementById('about').value = entry.about || ''; document.getElementById('isFavorite').checked = entry.isFavorite; document.getElementById('cancelEditBtn').style.display = 'inline-flex'; updatePasswordStrength(entry.password); } else { const link = allLinks[idx]; if(!link) return; showScreen('addLinkScreen'); document.getElementById('editLinkIndex').value = idx; document.getElementById('linkName').value = link.name; document.getElementById('linkUrl').value = link.url; document.getElementById('linkCategory').value = link.category; document.getElementById('linkDescription').value = link.description || ''; document.getElementById('isLinkFavorite').checked = link.isFavorite; document.getElementById('cancelLinkEditBtn').style.display = 'inline-flex'; } }
+function deleteItem(type, index) { const idx = parseInt(index, 10); if(isNaN(idx)) return; if (type === 'entry') { allEntries.splice(idx, 1); saveData('vaultData', allEntries).then(displayEntries); } else { allLinks.splice(idx, 1); saveData('linksData', allLinks).then(displayLinks); } }
+
+// --- FORM HANDLING & UTILITIES ---
+function clearForms() { ['credentialForm', 'linkForm', 'changePassForm', 'hintForm'].forEach(id => { const form = document.getElementById(id); if (form) form.reset(); }); document.getElementById('editIndex').value = '-1'; document.getElementById('editLinkIndex').value = '-1'; document.getElementById('cancelEditBtn').style.display = 'none'; document.getElementById('cancelLinkEditBtn').style.display = 'none'; updatePasswordStrength(''); }
+async function saveEntry() { const index = parseInt(document.getElementById('editIndex').value, 10); const entry = { service: document.getElementById('service').value.trim(), category: document.getElementById('category').value, username: document.getElementById('username').value.trim(), email: document.getElementById('email').value.trim(), password: document.getElementById('password').value, about: document.getElementById('about').value.trim(), isFavorite: document.getElementById('isFavorite').checked }; if (!entry.service || !entry.username || !entry.password) return CustomDialog.alert('Required fields: Service, Username, Password.', 'Missing Information'); if (index >= 0 && allEntries[index]) { allEntries[index] = entry; } else { allEntries.unshift(entry); } await saveData('vaultData', allEntries); CustomDialog.alert(`Credential for "<b>${Utils.escapeHtml(entry.service)}</b>" saved.`, 'Success'); showScreen('homeScreen'); displayEntries(); }
+async function saveLink() { const index = parseInt(document.getElementById('editLinkIndex').value, 10); const link = { name: document.getElementById('linkName').value.trim(), url: document.getElementById('linkUrl').value.trim(), category: document.getElementById('linkCategory').value, description: document.getElementById('linkDescription').value.trim(), isFavorite: document.getElementById('isLinkFavorite').checked }; if (!link.name || !link.url) return CustomDialog.alert('Link Name and URL are required.', 'Missing Information'); try { new URL(link.url); } catch (_) { if(!link.url.includes('.')) { return CustomDialog.alert('The URL is not valid.', 'Invalid URL'); } } if (index >= 0 && allLinks[index]) { allLinks[index] = link; } else { allLinks.unshift(link); } await saveData('linksData', allLinks); CustomDialog.alert(`Link "<b>${Utils.escapeHtml(link.name)}</b>" saved.`, 'Success'); showScreen('linksScreen'); displayLinks(); }
+function updatePasswordStrength(password) { const { level, score } = PasswordGenerator.checkStrength(password); const strengthBar = document.getElementById('strengthBar'); const strengthText = document.getElementById('strengthText'); if (!strengthBar) return; strengthBar.className = `strength-bar strength-${level}`; strengthBar.style.width = `${Math.min(100, (score / 6) * 100)}%`; strengthText.textContent = password ? (level.charAt(0).toUpperCase() + level.slice(1)) : ''; }
+function generateAndDisplayPassword() { const opts = { length: parseInt(document.getElementById('passwordLength').value, 10), includeUppercase: document.getElementById('includeUppercase').checked, includeLowercase: document.getElementById('includeLowercase').checked, includeNumbers: document.getElementById('includeNumbers').checked, includeSymbols: document.getElementById('includeSymbols').checked }; document.getElementById('generatedPassword').textContent = PasswordGenerator.generate(opts) || 'Select character types'; }
+function useGeneratedPassword() { const genPass = document.getElementById('generatedPassword').textContent; if (genPass && !genPass.includes('...')) { document.getElementById('password').value = genPass; updatePasswordStrength(genPass); CustomDialog.alert('Password copied to field.', 'Password Set'); } }
+
+</script>
+</body>
+</html>
